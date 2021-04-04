@@ -6,7 +6,7 @@ import numpy as np
 import cv2
 from keras.optimizers import SGD 
 from keras.utils import np_utils
- 
+import matplotlib.pyplot as plt
 
 
 # loads the MNIST dataset
@@ -73,3 +73,30 @@ history = model.fit(x_train, y_train,
 score = model.evaluate(x_test, y_test, verbose=0)
 print('Test loss:', score[0])
 print('Test accuracy:', score[1])
+
+
+#OpenCV
+def draw_test(name, pred, input_im):
+    BLACK = [0,0,0]
+    expanded_image = cv2.copyMakeBorder(input_im, 0, 0, 0, imageL.shape[0] ,cv2.BORDER_CONSTANT,value=BLACK)
+    expanded_image = cv2.cvtColor(expanded_image, cv2.COLOR_GRAY2BGR)
+    cv2.putText(expanded_image, str(pred), (152, 70) , cv2.FONT_HERSHEY_COMPLEX_SMALL,4, (0,255,87), 2)
+    #cv2.imshow(name, expanded_image)
+    plt.imshow(expanded_image, cmap=plt.get_cmap('gray'))
+    plt.show()
+
+
+for i in range(0,10):
+    rand = np.random.randint(0,len(x_test))
+    input_im = x_test[rand]
+
+    imageL = cv2.resize(input_im, None, fx=4, fy=4, interpolation = cv2.INTER_CUBIC)
+    input_im = input_im.reshape(1,28,28,1) 
+    
+    ## Get Prediction
+    res = str(model.predict_classes(input_im, 1, verbose = 0)[0])
+
+    draw_test("Prediction", res, imageL) 
+    cv2.waitKey(0)
+
+cv2.destroyAllWindows()
